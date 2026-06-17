@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Operator's Field Manual — AI Tools for PM/CSM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#121A24;
+  --bg-deep:#0B1118;
+  --paper:#FBF7EC;
+  --paper-alt:#F1E9D4;
+  --ink:#211C16;
+  --ink-soft:#6B6256;
+  --rule:#D8CCA8;
+  --rule-soft:#E7DEC2;
+  --gold:#A9802F;
+  --gold-soft:#D8B868;
+  --orientation:#46546B;
+  --claude:#B0552A;
+  --chatgpt:#286B57;
+  --gemini:#33508F;
+  --perplexity:#6A3D96;
+  --capstone:#8A6A1F;
+  --danger:#9C3A30;
+  --success:#2D7A4F;
+  --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono: 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,0.035), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(255,255,255,0.025), transparent 40%);
+  color:var(--ink);
+  font-family:var(--sans);
+  min-height:100vh;
+}
+.app{
+  display:flex;
+  max-width:1180px;
+  margin:0 auto;
+  min-height:100vh;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:220px;
+  flex:none;
+  padding:28px 0 28px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.brand{
+  color:var(--paper);
+  padding:0 16px 22px 10px;
+}
+.brand .mark{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--gold-soft);
+  text-transform:uppercase;
+}
+.brand h1{
+  font-family:var(--serif);
+  font-size:21px;
+  line-height:1.25;
+  margin:6px 0 0;
+  font-weight:600;
+  color:var(--paper);
+}
+.nav-tab{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px 11px 10px;
+  border-radius:8px 0 0 8px;
+  cursor:pointer;
+  color:rgba(251,247,236,0.62);
+  border-left:3px solid transparent;
+  transition:background .15s ease, color .15s ease;
+  position:relative;
+}
+.nav-tab:hover{ background:rgba(251,247,236,0.06); color:var(--paper); }
+.nav-tab.active{
+  background:var(--paper);
+  color:var(--ink);
+  border-left:3px solid var(--tab-color, var(--gold));
+}
+.nav-tab .tabno{
+  font-family:var(--mono);
+  font-size:11px;
+  width:22px;
+  flex:none;
+  color:var(--tab-color, var(--gold-soft));
+  font-weight:700;
+}
+.nav-tab.active .tabno{ color:var(--tab-color, var(--gold)); }
+.nav-tab .tablabel{ font-size:13.5px; font-weight:600; letter-spacing:.01em; }
+.nav-tab .stampdot{
+  margin-left:auto;
+  width:9px;height:9px;border-radius:50%;
+  border:1.5px solid rgba(251,247,236,0.35);
+  flex:none;
+}
+.nav-tab.active .stampdot{ border-color:rgba(0,0,0,0.25); }
+.nav-tab .stampdot.filled{ background:var(--tab-color, var(--gold)); border-color:var(--tab-color, var(--gold)); }
+.nav-tab.locked{ opacity:.45; cursor:not-allowed; }
+
+.sidebar-footer{
+  margin-top:auto;
+  padding:16px 14px 0 10px;
+  border-top:1px solid rgba(251,247,236,0.12);
+}
+.progress-line{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:rgba(251,247,236,0.5);
+  letter-spacing:.04em;
+  margin-bottom:8px;
+}
+.reset-link{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:rgba(251,247,236,0.45);
+  cursor:pointer;
+  text-decoration:underline;
+  text-decoration-color:rgba(251,247,236,0.25);
+}
+.reset-link:hover{ color:rgba(251,247,236,0.8); }
+
+/* ---------- MAIN / PAPER ---------- */
+.main-wrap{
+  flex:1;
+  padding:28px 28px 60px 22px;
+  min-width:0;
+}
+.paper{
+  background:var(--paper);
+  border-radius:3px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 60px -20px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.25);
+  position:relative;
+  padding:36px 44px 50px 56px;
+  min-height:80vh;
+}
+.holes{ position:absolute; left:18px; top:40px; bottom:40px; display:flex; flex-direction:column; justify-content:space-between; }
+.holes span{ width:9px; height:9px; border-radius:50%; background:var(--bg); box-shadow:inset 0 1px 2px rgba(0,0,0,0.5); }
+
+.dossier-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  border-bottom:1px solid var(--rule);
+  padding-bottom:14px;
+  margin-bottom:22px;
+}
+.dossier-bar b{ color:var(--mod-color, var(--ink)); }
+
+.kicker{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--mod-color, var(--gold));
+  font-weight:700;
+}
+h2.modtitle{
+  font-family:var(--serif);
+  font-size:32px;
+  margin:6px 0 4px;
+  line-height:1.15;
+  color:var(--ink);
+}
+.dek{
+  font-size:15.5px;
+  color:var(--ink-soft);
+  max-width:640px;
+  line-height:1.55;
+  margin-bottom:28px;
+}
+h3.section-head{
+  font-family:var(--serif);
+  font-size:19px;
+  margin:38px 0 10px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--rule-soft);
+  color:var(--ink);
+}
+.lesson p{
+  font-size:15px;
+  line-height:1.7;
+  margin:0 0 14px;
+  color:#332B22;
+  max-width:680px;
+}
+.lesson strong{ color:var(--ink); }
+
+.fieldnote{
+  background:var(--paper-alt);
+  border-left:3px solid var(--mod-color, var(--gold));
+  border-radius:2px;
+  padding:14px 18px;
+  margin:18px 0;
+  max-width:680px;
+}
+.fieldnote .fn-label{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--mod-color, var(--gold));
+  font-weight:700;
+  margin-bottom:5px;
+}
+.fieldnote p{ margin:0; font-size:14px; line-height:1.6; color:#3a3225; }
+
+.specimen{
+  margin:20px 0 26px;
+  border:1px solid var(--rule);
+  border-radius:4px;
+  overflow:hidden;
+  max-width:680px;
+}
+.specimen-head{
+  background:var(--paper-alt);
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:8px 14px;
+  color:var(--mod-color, var(--ink-soft));
+  border-bottom:1px solid var(--rule);
+  font-weight:700;
+}
+.specimen-body{
+  background:#16140F;
+  color:#EDE6D4;
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  padding:16px 18px;
+  white-space:pre-wrap;
+}
+.specimen-annot{
+  padding:12px 16px;
+  font-size:13.5px;
+  line-height:1.6;
+  color:var(--ink-soft);
+  background:var(--paper);
+  border-top:1px dashed var(--rule);
+}
+.specimen-annot b{ color:var(--ink); }
+
+.divider{ border:none; border-top:1px dashed var(--rule); margin:36px 0; }
+
+/* ---------- QUIZ ---------- */
+.quiz-q{
+  max-width:680px;
+  margin-bottom:22px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--rule-soft);
+}
+.quiz-q:last-of-type{ border-bottom:none; }
+.quiz-q .qtext{ font-size:15px; font-weight:600; margin-bottom:10px; color:var(--ink); }
+.quiz-q .qnum{ font-family:var(--mono); color:var(--mod-color,var(--gold)); margin-right:6px; }
+.opt{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:9px 12px;
+  border:1px solid var(--rule);
+  border-radius:5px;
+  margin-bottom:7px;
+  cursor:pointer;
+  font-size:14px;
+  background:#fff;
+  line-height:1.45;
+}
+.opt:hover{ border-color:var(--mod-color,var(--gold)); }
+.opt.selected{ border-color:var(--mod-color,var(--gold)); background:var(--paper-alt); font-weight:600; }
+.opt .radio{ width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-soft); flex:none; margin-top:2px;}
+.opt.selected .radio{ border-color:var(--mod-color,var(--gold)); background:var(--mod-color,var(--gold)); }
+.quiz-q.graded .opt{ cursor:default; }
+.quiz-q.graded .opt.correct-answer{ border-color:var(--success); background:#EAF4EC; }
+.quiz-q.graded .opt.wrong-answer{ border-color:var(--danger); background:#F8EAE8; }
+.q-explain{
+  font-size:13px;
+  color:var(--ink-soft);
+  background:var(--paper-alt);
+  border-radius:5px;
+  padding:9px 12px;
+  margin-top:8px;
+  line-height:1.55;
+}
+
+.btn{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  font-weight:700;
+  border:none;
+  border-radius:4px;
+  padding:11px 20px;
+  cursor:pointer;
+  background:var(--ink);
+  color:var(--paper);
+  transition:opacity .15s;
+}
+.btn:hover{ opacity:.85; }
+.btn.secondary{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; }
+.btn.accent{ background:var(--mod-color, var(--gold)); color:#fff; }
+
+.quiz-result{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-top:10px;
+  padding:16px;
+  border-radius:6px;
+  background:var(--paper-alt);
+}
+.quiz-result .scoreline{ font-family:var(--mono); font-size:13px; color:var(--ink-soft); }
+.quiz-result .scoreline b{ font-size:16px; color:var(--ink); }
+
+/* ---------- STAMP ---------- */
+.stamp{
+  width:92px;height:92px;border-radius:50%;
+  border:2.5px solid var(--c, var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(-9deg);
+  mix-blend-mode:multiply;
+  opacity:.88;
+  position:relative;
+  flex:none;
+}
+.stamp::after{ content:''; position:absolute; inset:7px; border:1px dashed var(--c, var(--gold)); border-radius:50%; }
+.stamp .word{
+  font-family:var(--mono); font-weight:800; text-transform:uppercase;
+  font-size:11px; letter-spacing:.04em; color:var(--c, var(--gold)); text-align:center; line-height:1.2;
+}
+.stamp.lg{ width:148px;height:148px; }
+.stamp.lg .word{ font-size:15px; }
+
+/* ---------- EXERCISE ---------- */
+.exercise-box{
+  max-width:680px;
+  border:1px solid var(--rule);
+  border-radius:6px;
+  padding:20px 22px;
+  background:#fff;
+}
+.exercise-box .ex-label{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--mod-color, var(--gold)); font-weight:700; margin-bottom:8px;
+}
+.exercise-box .scenario{ font-size:14.5px; line-height:1.65; margin-bottom:14px; color:#332B22; }
+.exercise-box textarea{
+  width:100%; min-height:120px; font-family:var(--mono); font-size:13.5px;
+  border:1px solid var(--rule); border-radius:5px; padding:12px; resize:vertical;
+  background:var(--paper); color:var(--ink); line-height:1.55;
+}
+.exercise-box textarea:focus{ outline:none; border-color:var(--mod-color, var(--gold)); }
+.rubric{ margin:16px 0; }
+.rubric .r-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:8px; }
+.rubric-item{ display:flex; gap:9px; align-items:flex-start; margin-bottom:7px; font-size:13.5px; cursor:pointer; line-height:1.5; }
+.rubric-item input{ margin-top:3px; }
+.ai-feedback{
+  margin-top:16px; padding:14px 16px; border-radius:6px;
+  background:var(--paper-alt); border-left:3px solid var(--mod-color,var(--gold));
+  font-size:13.5px; line-height:1.6;
+}
+.ai-feedback h4{ margin:0 0 8px; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--mod-color,var(--gold)); }
+.ai-feedback ul{ margin:6px 0 6px 18px; padding:0; }
+.ai-feedback .loading{ color:var(--ink-soft); font-style:italic; }
+.reveal-toggle{ font-family:var(--mono); font-size:12px; color:var(--mod-color,var(--gold)); cursor:pointer; text-decoration:underline; margin-top:10px; display:inline-block; }
+.model-answer{ margin-top:10px; padding:12px 14px; background:#16140F; color:#EDE6D4; border-radius:5px; font-family:var(--mono); font-size:12.5px; line-height:1.6; white-space:pre-wrap; }
+
+.btnrow{ display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
+
+/* ---------- CERTIFICATE / CAPSTONE ---------- */
+.matrix{ width:100%; max-width:680px; border-collapse:collapse; margin:14px 0 10px; font-size:13.5px; }
+.matrix th, .matrix td{ border:1px solid var(--rule); padding:9px 11px; text-align:left; vertical-align:top; }
+.matrix th{ background:var(--paper-alt); font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+
+.lockbox{
+  max-width:680px; border:1.5px dashed var(--rule); border-radius:6px; padding:20px;
+  font-size:14px; color:var(--ink-soft); background:var(--paper-alt);
+}
+.lockbox b{ color:var(--ink); }
+.lockbox ul{ margin:10px 0 0 18px; padding:0; }
+
+.cert-wrap{ max-width:760px; }
+#cert-card{
+  border:3px double var(--gold);
+  border-radius:4px;
+  padding:46px 50px;
+  background:#FEFCF6;
+  position:relative;
+  text-align:center;
+}
+#cert-card .cert-eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--gold); text-transform:uppercase; }
+#cert-card h2{ font-family:var(--serif); font-size:26px; margin:14px 0 4px; color:var(--ink); }
+#cert-card .cert-name{ font-family:var(--serif); font-style:italic; font-size:30px; margin:18px 0 6px; color:#1d1a14; border-bottom:1px solid var(--rule); display:inline-block; padding-bottom:6px; min-width:280px; }
+#cert-card .cert-sub{ font-size:13.5px; color:var(--ink-soft); max-width:480px; margin:8px auto 18px; line-height:1.5; }
+#cert-card .cert-modules{ font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); margin:18px 0; line-height:1.8; }
+#cert-card .sealrow{ display:flex; justify-content:center; align-items:center; gap:30px; margin-top:24px; }
+#cert-card .credid{ font-family:var(--mono); font-size:10.5px; color:var(--ink-soft); margin-top:18px; }
+.name-input-row{ display:flex; gap:10px; margin-bottom:20px; max-width:480px; }
+.name-input-row input{ flex:1; padding:10px 12px; border:1px solid var(--rule); border-radius:5px; font-size:14px; font-family:var(--sans); }
+.disclaimer{ font-size:12px; color:var(--ink-soft); max-width:680px; margin-top:18px; line-height:1.55; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 880px){
+  .app{ flex-direction:column; }
+  .sidebar{ width:100%; flex-direction:row; overflow-x:auto; padding:14px 12px; gap:8px; }
+  .brand{ display:none; }
+  .nav-tab{ flex:none; border-radius:8px; border-left:none; border-bottom:3px solid transparent; padding:8px 12px; }
+  .nav-tab.active{ border-bottom:3px solid var(--tab-color, var(--gold)); }
+  .sidebar-footer{ display:none; }
+  .main-wrap{ padding:14px 12px 40px; }
+  .paper{ padding:26px 20px 36px 34px; }
+  .holes{ left:8px; }
+  h2.modtitle{ font-size:25px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar"></nav>
+  <div class="main-wrap">
+    <div class="paper" id="paper">
+      <div class="holes"><span></span><span></span><span></span><span></span><span></span></div>
+      <div id="main-content">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const STORAGE_KEY = 'academy_progress_v1';
+
+const MODULES = [
+{
+  id:0, color:'var(--orientation)', tabLabel:'ORIENTATION', fileNo:'00', clearance:'BEGINNER', readTime:'12 MIN',
+  kicker:'Module 00 — Orientation', title:'How to talk to a machine that does what you say, not what you mean',
+  dek:'Before you open Claude, ChatGPT, Gemini, or Perplexity, get the one skill that transfers across all four: writing instructions a capable-but-context-blind assistant can actually act on.',
+  lessons:[
+    {h:'Why this is a PM/CSM skill now, not an IT skill', body:[
+      'A few years ago, "using AI" meant asking a chatbot trivia questions. In 2026, AI tools sit inside the actual surfaces program managers and customer success managers work in every day: the doc where you draft a PRD, the inbox where you answer a renewal question, the spreadsheet where you track ticket volume, the browser tab where you research a competitor.',
+      'The gap between someone who gets generic, mushy output and someone who gets a usable first draft almost never comes down to which tool they have a license for. It comes down to how clearly they instruct it. That is the entire premise of this program: tool literacy matters less than instruction literacy, and instruction literacy is a skill you can practice and get measurably better at in an afternoon.',
+      'Think of a prompt the way you would think of a delegation to a sharp, fast, eager new hire who joined this morning. They have no memory of your last conversation, no idea what "our format" means, and no instinct for what you actually wanted unless you tell them. They are not stupid. They are under-briefed. Your job is to brief them.'
+    ]},
+    {h:'The anatomy of a strong prompt', body:[
+      'Most weak prompts are missing one of five ingredients: <strong>role</strong> (what expertise or perspective should the model adopt), <strong>context</strong> (the background, data, or constraints it needs), <strong>task</strong> (the one specific thing you want done), <strong>format</strong> (how the output should be shaped — length, structure, tone), and <strong>constraints or examples</strong> (boundaries, and ideally a sample of what "good" looks like).',
+      'You rarely need all five spelled out in full sentences — a one-line prompt with a clear task and format can be enough for a quick task. But when output keeps coming back wrong, it is almost always because one of those five was left implicit in your head instead of written down.'
+    ]},
+    {h:'Core techniques that work across every tool', body:[
+      '<strong>Zero-shot vs. few-shot:</strong> zero-shot means you just describe the task; few-shot means you also paste one or two examples of the output style you want. Few-shot is the fastest way to fix "technically correct but not how we write things here."',
+      '<strong>Plan, then write:</strong> for anything longer than a paragraph, ask the model to outline its approach in a few bullets before producing the full answer. This single habit improves long-form output more than almost any other trick, because it catches a wrong direction before it gets written out in full.',
+      '<strong>Iterate, don\'t restart:</strong> treat the first response as a draft. Instead of rewriting your whole prompt from scratch when something is off, give specific feedback on what to change — "tighten the second paragraph," "make this sound less formal," "add the renewal date." Models are good at editing toward feedback.',
+      '<strong>Standing instructions vs. one-off asks:</strong> every tool in this course has some version of a place to park instructions that should apply every time (a system prompt, custom instructions, a Project, a Gem, a Space) separate from the specific thing you are asking for today. Use the standing-instructions layer for "always write in this tone" and the one-off layer for "summarize this specific document."'
+    ]},
+    {h:'Picking the right tool for the job', body:[
+      'You will meet all four tools in depth in the modules ahead, but here is the short version: reach for <strong>Claude</strong> when you are working with a long document or need a structured deliverable you can keep editing. Reach for <strong>ChatGPT</strong> when the task is repeatable enough to be worth building a saved assistant for, or involves crunching a data file. Reach for <strong>Gemini</strong> when the work already lives inside Gmail, Docs, Sheets, or Drive. Reach for <strong>Perplexity</strong> when you need an answer grounded in current, citable sources rather than the model\'s own memory.',
+      'Most working PMs and CSMs end up using two or three of these in a normal week, not one tool for everything. The decision is "which surface is this task already happening in," not "which AI do I prefer."'
+    ]}
+  ],
+  fieldNotes:[
+    {label:'Field note', text:'If you only remember one thing from this module: a prompt that names the audience and the format will beat a clever prompt that doesn\'t, almost every time.'}
+  ],
+  specimens:[
+    {label:'Before — weak prompt', body:'Write a status update.', annot:'Missing audience, missing the facts to include, missing format. The model has to guess at all three, and it will guess wrong about at least one.'},
+    {label:'After — same task, briefed properly', body:'You are helping me draft a weekly status update for engineering leadership (not the exec team — they want detail, not a summary).\n\nContext: the Q3 roadmap slipped two weeks because a vendor API we depend on delayed their release. Engineering already has a workaround in testing.\n\nTask: draft the update.\nFormat: 4 short bullets — what shipped, what slipped and why, the workaround status, and next week\'s focus. Plain, factual tone, no spin. Under 120 words total.', annot:'Same task, five seconds more typing, a draft you can actually send with light editing instead of one you have to rewrite from scratch.'}
+  ],
+  quiz:[
+    {q:'A coworker asks an AI tool to "write a status update" and gets something generic and unusable. Which missing ingredient is most likely the root cause?', options:['The model does not understand English well enough','Context and format were never specified','The free tier is too limited','AI tools cannot write business documents'], correct:1, explain:'The task itself ("write a status update") is clear enough. What is missing is who it\'s for, what facts to include, and how it should be shaped — context and format.'},
+    {q:'What does "few-shot prompting" mean?', options:['Asking a short question instead of a long one','Giving the model one or two examples of the output style you want','Using the cheapest available model','Limiting the model to five responses'], correct:1, explain:'Few-shot means you supply example(s) of the desired output alongside your instructions, so the model can match style or format rather than guess.'},
+    {q:'A CSM sends dozens of customer emails a week and wants a consistent tone without retyping instructions every time. What is the best fix?', options:['Write a longer prompt each time','Put the tone and style rules in a standing-instructions layer (system prompt, custom instructions, Project, Gem, or Space) once', 'Ask the model to "be more consistent"','Switch to a cheaper model'], correct:1, explain:'Standing instructions exist exactly for this: rules that should apply every time, set once instead of repeated in every prompt.'},
+    {q:'Why is "plan first, then write" useful for longer outputs?', options:['It uses fewer tokens','It catches a wrong direction in a short outline before it gets written out in full', 'It is required by every AI tool','It makes the output shorter'], correct:1, explain:'A brief outline surfaces structural problems while they are still cheap to fix — before paragraphs of prose have been generated around a wrong assumption.'},
+    {q:'You need to compare three competitors\' current pricing pages with citations you can trust. Which kind of tool is purpose-built for that?', options:['A tool with a long context window for documents','A tool that grounds answers in live, citable web sources','A tool integrated into your email inbox','A tool that remembers your past conversations'], correct:1, explain:'This is a research task that needs current, sourced information — the use case a citation-first research tool is built around (you\'ll meet one in Module 04).'}
+  ],
+  exercise:{
+    label:'Field exercise — brief the assistant',
+    scenario:'Your team\'s roadmap slipped two weeks because of a vendor delay. You need to update engineering leadership.',
+    task:'Write the PROMPT you would give an AI tool to draft this update (not the update itself). Use the five-ingredient structure from this module.',
+    rubric:['Specifies a role or perspective for the model','States the audience','Lists the specific facts that must be included','Specifies format (length, structure, tone)','Asks for an editable draft, not language to be sent unread'],
+    modelAnswer:'You are helping me draft a status update for engineering leadership.\nContext: Q3 roadmap slipped two weeks — root cause was a vendor API delay; a workaround is in testing now.\nTask: write the update.\nFormat: 4 bullets — shipped / slipped+why / workaround status / next focus. Plain tone, under 120 words. This is a draft for me to edit, not a final send.'
+  }
+},
+{
+  id:1, color:'var(--claude)', tabLabel:'CLAUDE', fileNo:'01', clearance:'BEGINNER → INTERMEDIATE', readTime:'14 MIN',
+  kicker:'Module 01 — Claude', title:'The long-document, structured-output specialist',
+  dek:'Claude\'s edge for PM/CSM work is handling large inputs in one pass and turning a request straight into an editable deliverable instead of a wall of chat text.',
+  lessons:[
+    {h:'Where Claude earns its place in your workflow', body:[
+      'Claude is built around large context windows and careful, structured reasoning, which makes it a strong fit for the documents PMs and CSMs actually deal with: full customer call transcripts, long contracts, multi-page requirements docs, research dumps you need synthesized rather than skimmed.',
+      'Two features matter most day to day. <strong>Projects</strong> let you pin standing instructions and reference files so every conversation inside that project already has your team\'s context loaded — you stop re-explaining your PRD template or your account-tiering rules every single time. <strong>Artifacts</strong> turn a request into an editable, standalone document, dashboard, or outline in a side panel, rather than text buried in a chat thread — useful any time the actual goal is a deliverable, not a conversation.',
+      'For builders rather than writers on a PM/CSM team, Claude Code and the Cowork file-access mode extend the same model into working directly with project files and folders — worth knowing exists even if it is not your daily tool.'
+    ]},
+    {h:'Prompting Claude well', body:[
+      'Claude tends to do better when long inputs are clearly separated from instructions — paste the source material first (or wrap it in a labeled block), then state what you want done with it, rather than interleaving instructions and data.',
+      'Because Claude handles long context well, resist the habit of pre-summarizing for it. Paste the entire transcript or the entire contract rather than your own condensed version — you lose detail every time you summarize by hand before handing it off, and Claude does not need you to do that work first.',
+      'For anything you intend to keep working on — not just read once — ask explicitly for an Artifact ("produce this as an editable document/outline") so you get something you can revise, instead of chat text you have to copy out by hand.'
+    ]}
+  ],
+  fieldNotes:[
+    {label:'Field note', text:'Claude does not get worse the longer your input gets. Paste the whole document instead of your own summary of it — you\'ll lose less in translation.'}
+  ],
+  specimens:[
+    {label:'Specimen — account health summary from a long transcript', body:'Here is the full transcript of yesterday\'s 45-minute QBR call with [Account Name]: [paste full transcript]\n\nTask: produce an account health summary with three labeled sections — Pain Points, Feature Requests, Churn Risk Signals. Under each section, list specific quotes or paraphrases with a one-line "why this matters" note. Tag the overall churn risk as Low / Medium / High and justify it in one sentence.', annot:'Source pasted in full, instructions kept separate and specific, format spelled out exactly — Claude does not have to guess what "summarize this" should look like.'},
+    {label:'Specimen — requesting a deliverable, not chat text', body:'Based on the three feature requests above, draft a one-page PRD outline as an editable document I can keep working on: Problem Statement, Target User, Proposed Solution, Success Metrics, Open Questions. Keep each section to 2-3 sentences for now — this is a skeleton, not the final doc.', annot:'Explicitly asks for an editable artifact and sets expectations on depth ("skeleton, not final") so the output matches the stage of work it\'s actually for.'}
+  ],
+  quiz:[
+    {q:'A PM has a 90-minute customer call transcript and wants a structured summary. What is the recommended approach with Claude?', options:['Summarize it yourself first, then paste the summary','Paste the full transcript and let Claude work from the complete source','Only paste the last 10 minutes','Ask Claude to guess what was probably discussed'], correct:1, explain:'Claude\'s strength is handling long inputs directly — pre-summarizing by hand throws away detail Claude could have used.'},
+    {q:'What is the main purpose of a Claude Project for a PM/CSM team?', options:['It makes responses shorter','It gives every conversation in that project standing context and instructions without re-explaining them each time','It is required to use Claude at all','It only works for software engineers'], correct:1, explain:'Projects persist instructions and reference files so context carries across every conversation started inside them.'},
+    {q:'When should you explicitly ask for an Artifact instead of a normal chat reply?', options:['Every single time, regardless of the task','When the goal is an editable document, outline, or deliverable you\'ll keep working on','Only for code','Never — Artifacts are automatic'], correct:1, explain:'Artifacts are best requested when the output is something you intend to revise or hand off, not a quick conversational answer.'},
+    {q:'Why is "plan first, then write" especially relevant to Claude for long documents?', options:['It is unique to Claude and not useful elsewhere','It catches structural problems in a short outline before they get written out across many paragraphs','It reduces the file size of the output','It is only relevant to code'], correct:1, explain:'This technique from Module 00 applies broadly, and matters most exactly where Claude is often used: longer, structured documents.'},
+    {q:'Which task is the best fit for Claude\'s particular strengths, compared to the other three tools in this course?', options:['Finding today\'s competitor pricing with citations','Drafting an email inside your existing Gmail thread','Synthesizing a long contract into a structured risk summary','Building a reusable, shareable assistant for ticket triage'], correct:2, explain:'Long-document synthesis into a structured deliverable plays directly to Claude\'s strengths covered in this module.'}
+  ],
+  exercise:{
+    label:'Field exercise — structure a long input',
+    scenario:'You have a long, messy set of call notes from a churn-risk account. You want a structured account health summary you can drop into your CRM.',
+    task:'Write the prompt you would give Claude. Assume you will paste the full notes above your prompt.',
+    rubric:['Separates "here is the source material" from "here is the instruction"','Specifies the exact output sections (e.g. pain points / requests / risk)','Specifies a risk rating or scoring scheme','Asks for it as something you can keep editing, not just a one-time answer'],
+    modelAnswer:'Here is the full set of call notes: [paste]. Task: produce an account health summary with three sections — Pain Points, Feature Requests, Churn Risk Signals — each with a one-line "why it matters" note, then an overall Low/Medium/High risk tag with a one-sentence justification. Format as something I can paste into our CRM notes field.'
+  }
+},
+{
+  id:2, color:'var(--chatgpt)', tabLabel:'CHATGPT', fileNo:'02', clearance:'BEGINNER → INTERMEDIATE', readTime:'14 MIN',
+  kicker:'Module 02 — ChatGPT', title:'The repeatable-workflow, broad-ecosystem generalist',
+  dek:'ChatGPT\'s strength for PM/CSM work is building something once — a Custom GPT, a Project, a saved instruction set — and reusing it across dozens of repeat tasks, plus genuinely useful data analysis on files.',
+  lessons:[
+    {h:'Where ChatGPT earns its place in your workflow', body:[
+      'ChatGPT has the broadest feature surface of the four tools in this course. For PM/CSM work, three features matter most: <strong>Custom GPTs</strong> — a saved configuration (instructions, knowledge files, tools) you build once for a repeatable job, like "Customer Escalation Triage Assistant" or "Meeting Notes to Action Items"; <strong>Projects</strong> — a scoped workspace for one initiative\'s files and context; and <strong>data analysis</strong> — upload a CSV of ticket data or churn numbers and ask for an actual calculation or chart, not just a description.',
+      '<strong>Memory</strong> is a fourth layer worth understanding precisely because it is easy to misuse: it stores facts ChatGPT has learned about you across all your conversations, account-wide. It is great for "I always write in British English" and a poor substitute for project-specific context, which belongs in a Project or a Custom GPT instead.',
+      'A 2026-era feature worth knowing about: meeting-capture modes that transcribe a call and convert it directly into structured follow-ups or action items — useful for CSMs who are otherwise manually writing call recaps after every customer touchpoint.'
+    ]},
+    {h:'Prompting ChatGPT well', body:[
+      'Keep the three context layers distinct: <strong>Custom Instructions</strong> for things that should always be true about how you work (tone, formatting defaults); a <strong>Project</strong> for one initiative\'s files and rules; <strong>Memory</strong> for evolving personal facts that should follow you everywhere. Mixing them up is the most common ChatGPT setup mistake.',
+      'When working with an uploaded file, be explicit about the exact calculation or transformation you want — "calculate average resolution time by ticket priority and flag any priority where it increased month over month" beats "analyze this file," which invites a vague narrative summary instead of the number you actually needed.',
+      'When building a Custom GPT for a repeat task, write its instructions the way you\'d brief a new team member taking over that task permanently: define the persona, the exact output format every time, and how to handle edge cases (ambiguous input, duplicates, missing information) — not just the happy path.'
+    ]}
+  ],
+  fieldNotes:[
+    {label:'Field note', text:'Memory is account-wide and persists by default. Do not rely on it for facts that should live in a shared Project your teammates also need to see.'}
+  ],
+  specimens:[
+    {label:'Specimen — Custom GPT instructions for a triage assistant', body:'You are a Customer Escalation Triage Assistant for a B2B SaaS support team.\n\nFor every incoming request, output exactly these fields: Category (Bug / Feature Request / Billing / Access / Other), Severity (Low / Medium / High / Critical), Suggested Owner Team, One-line Summary.\n\nIf the request is ambiguous or missing key details, set Severity to "Needs Clarification" and list the specific question to ask the customer instead of guessing.\nNever invent account details that were not provided. Keep the Summary under 20 words.', annot:'Defines a persona, a fixed output schema, and explicitly handles the edge case (ambiguous input) instead of only the happy path.'},
+    {label:'Specimen — data analysis with an exact ask', body:'Using the attached support_tickets.csv: calculate average first-response time by priority level for the last full month. Flag any priority level where that average increased compared to the prior month. Output as a table, then a 2-sentence takeaway below it.', annot:'Names the exact calculation and comparison wanted, and specifies the output shape — a table plus a short takeaway, not a paragraph of prose.'}
+  ],
+  quiz:[
+    {q:'A PM wants a reusable assistant that always triages incoming feature requests the same way. What is the best ChatGPT feature for this?', options:['Memory','A Custom GPT with fixed instructions and output format','Temporary Chat','The free tier default settings'], correct:1, explain:'A Custom GPT is exactly built for a saved, repeatable configuration with consistent instructions and output format.'},
+    {q:'Why is Memory a poor substitute for a Project when sharing context with teammates?', options:['Memory is more expensive','Memory is tied to one individual account, not shared across a team','Memory only works on mobile','Memory cannot store text'], correct:1, explain:'Memory is personal and account-wide; a Project is the right place for context a team needs to share.'},
+    {q:'When uploading a CSV and asking for analysis, what makes the prompt effective?', options:['Asking the model to "analyze this file" broadly','Naming the exact calculation, comparison, and output format you want', 'Uploading the smallest possible file','Avoiding any mention of column names'], correct:1, explain:'Vague asks like "analyze this" tend to produce a generic narrative; naming the exact calculation gets you the number you actually needed.'},
+    {q:'What should good Custom GPT instructions explicitly cover, beyond the happy path?', options:['Nothing else is needed','How to handle ambiguous, duplicate, or incomplete input','The exact pricing of the GPT Store','Which model OpenAI uses internally'], correct:1, explain:'Real-world inputs are messy; instructions that only cover clean cases will produce unreliable behavior on the edge cases that show up constantly.'},
+    {q:'A CSM wants every customer call automatically turned into structured follow-up tasks without manual note-taking. Which kind of feature addresses this directly?', options:['Custom Instructions','A meeting-capture / transcription-to-structured-output mode','The GPT Store browsing page','Temporary Chat'], correct:1, explain:'Meeting-capture features are specifically built to convert unstructured call audio into structured action items or summaries.'}
+  ],
+  exercise:{
+    label:'Field exercise — design a reusable assistant',
+    scenario:'Your team gets feature requests through five different channels (Slack, email, support tickets, sales notes, in-app feedback) in five different formats.',
+    task:'Write the system instructions for a Custom GPT that normalizes any incoming feature request into one consistent format.',
+    rubric:['Defines a clear persona/role for the assistant','Specifies an exact, fixed output schema (fields every time)','Explicitly handles ambiguous or incomplete input','Sets a tone or length constraint'],
+    modelAnswer:'You are a Feature Request Normalizer. For any input, output: Source Channel, Requesting Customer (or "internal" if none given), Request Summary (max 25 words), Category (UX / Performance / Integration / Other), Urgency as stated by requester (or "not specified"). If critical fields are missing, output them as "Unknown" rather than guessing. Keep tone neutral and factual.'
+  }
+},
+{
+  id:3, color:'var(--gemini)', tabLabel:'GEMINI', fileNo:'03', clearance:'BEGINNER → INTERMEDIATE', readTime:'13 MIN',
+  kicker:'Module 03 — Gemini', title:'The tool that already lives where your work lives',
+  dek:'Gemini\'s edge is native integration with Gmail, Docs, Sheets, and Drive — the surfaces a PM/CSM is already working in all day — plus saved personas (Gems) and grounded multi-source research.',
+  lessons:[
+    {h:'Where Gemini earns its place in your workflow', body:[
+      'Gemini\'s differentiator is not a flashier model — it\'s that it is built directly into Gmail, Docs, Sheets, Slides, Meet, and Drive. For a PM or CSM, that means drafting a renewal-risk follow-up without leaving the email thread, or turning a Doc full of meeting notes into a clean table inside that same Doc.',
+      '<strong>Gems</strong> are Gemini\'s version of a saved, role-based assistant — set one up once for a recurring task type ("Meeting Notes Summarizer," "QBR Slide Outline Assistant") and reuse it without re-explaining the role each time. <strong>Deep Research</strong> produces a structured, multi-source research report and shows its sources and reasoning, useful for genuinely broad questions rather than quick lookups — and it typically has a daily session limit, so it\'s worth saving for questions that actually need that depth.'
+    ]},
+    {h:'Prompting Gemini well — and its sharpest limitation', body:[
+      'The single most important limitation to understand: <strong>Gemini in a Google Doc can only see the content of that active document</strong> — it cannot pull in a linked file or a separate appendix stored elsewhere in Drive, even if your document references it. If you need it to reason about a second document, that content needs to be pasted in or directly attached, not just linked.',
+      'Set up Gems for any task type you do more than a few times a month — the setup cost is a few minutes and it pays for itself by the second use.',
+      'In Sheets, be explicit about the exact formula or calculation you want rather than a vague "look at this data" — name the columns and the comparison, the same principle from the ChatGPT data-analysis module applies here too.'
+    ]}
+  ],
+  fieldNotes:[
+    {label:'Field note', text:'If your Doc references an appendix that lives as a separate file, Gemini will not automatically pull it in. Paste the relevant content directly, or it will summarize based on what\'s missing.'}
+  ],
+  specimens:[
+    {label:'Specimen — drafting inside an existing Gmail thread', body:'Draft a reply to this thread acknowledging their concern about the price increase, referencing that their renewal is in 6 weeks, and proposing a 20-minute call this week. Keep it under 100 words, warm but not apologetic — we are not reversing the increase.', annot:'References the thread\'s content directly and sets a precise emotional register ("warm but not apologetic") rather than leaving tone to chance.'},
+    {label:'Specimen — Gem setup for a recurring task', body:'Gem persona: "QBR Slide Outline Assistant."\nInstructions: Given raw account notes, always output a 6-slide outline in this order: Account Snapshot, Usage Trends, Wins Since Last QBR, Open Risks, Upcoming Roadmap Relevant to This Account, Ask/Next Steps. Each slide: a title and 3 bullet points max. Flag any slide where you don\'t have enough information rather than inventing detail.', annot:'Built once as a Gem, this persona is reused every QBR cycle without re-explaining the structure each time.'}
+  ],
+  quiz:[
+    {q:'What is the key limitation of Gemini summarizing a Google Doc that references an appendix stored as a separate file?', options:['It will automatically pull in the appendix','It can only see content actually inside the active document, and will exclude the linked appendix','It refuses to summarize any document with links','It deletes the link automatically'], correct:1, explain:'Gemini in Docs is scoped to the active document\'s own content — linked or referenced files elsewhere in Drive are not automatically included.'},
+    {q:'What is a Gem most similar to in the other tools covered in this course?', options:['A Claude Project','A saved, role-based assistant similar to a ChatGPT Custom GPT','A type of file format','A pricing tier'], correct:1, explain:'Gems are Gemini\'s saved-persona feature, conceptually similar to Custom GPTs — set up once, reused for a recurring task type.'},
+    {q:'When is Deep Research the right choice over a normal Gemini chat?', options:['For any quick factual lookup','For genuinely broad, multi-source questions where session usage is worth spending','Only for academic users','Never — it is strictly worse than a normal chat'], correct:1, explain:'Deep Research sessions are typically limited per day, so they are best reserved for questions that actually need multi-source synthesis.'},
+    {q:'A CSM wants to reply to a customer thread referencing specifics from that thread. What should the prompt include?', options:['A generic request to "write a good reply"','A reference to the actual thread content and a clear tone/length instruction', 'Instructions to ignore the thread entirely','A request for a reply in a completely different format than email'], correct:1, explain:'Because Gemini in Gmail can see the active thread, prompts should reference that content directly and specify tone and length — the same anatomy from Module 00.'},
+    {q:'In Sheets, what gets the best result when you want a specific calculation?', options:['A vague request to "look at this data"','Naming the exact columns and comparison you want calculated','Avoiding any formula language entirely','Requesting the lowest-effort answer'], correct:1, explain:'As with ChatGPT\'s data analysis, precision about the exact calculation beats a vague request every time.'}
+  ],
+  exercise:{
+    label:'Field exercise — turn notes into structure, in place',
+    scenario:'A Google Doc has 20 minutes of unstructured, bullet-dump meeting notes from a customer call. You want clean action items, in that same document.',
+    task:'Write the Gemini prompt you would use, given the constraint that Gemini only sees what\'s actually in the active Doc.',
+    rubric:['Specifies the output as a table with named columns (e.g. action / owner / due date)','References only content that exists in the document itself (no assumption of outside files)','Asks it to flag anything ambiguous rather than invent an owner or date'],
+    modelAnswer:'Using only the notes in this document, produce a table with columns: Action Item, Owner, Due Date, Status. If an owner or due date was not stated in the notes, put "Not specified" rather than guessing. Place the table at the top of the document above the raw notes.'
+  }
+},
+{
+  id:4, color:'var(--perplexity)', tabLabel:'PERPLEXITY', fileNo:'04', clearance:'BEGINNER → INTERMEDIATE', readTime:'13 MIN',
+  kicker:'Module 04 — Perplexity', title:'The cited, current-web research specialist',
+  dek:'Perplexity\'s edge is answers grounded in live, citable sources rather than a model\'s own memory — built for the competitive research and market-scanning work that shows up before every QBR and roadmap review.',
+  lessons:[
+    {h:'Where Perplexity earns its place in your workflow', body:[
+      'Perplexity is built around "search, then synthesize, then cite" rather than "recall from training data." For PM/CSM work, that makes it the right tool for competitive pricing research, market sizing, "has anything changed about X since last quarter" questions, and any claim you intend to put in front of customers or leadership and need to be able to back up.',
+      'A normal query gives a fast synthesized answer. <strong>Pro Search</strong> triggers a deeper, multi-step process — breaking a complex question into sub-queries, reading many more sources, and returning a structured comparison rather than a single paragraph — best reserved for genuinely multi-part questions. <strong>Spaces</strong> are persistent project folders: set standing instructions once ("always cite primary sources," "focus on enterprise SaaS pricing") and upload reference files, and every search inside that Space inherits them.'
+    ]},
+    {h:'Prompting Perplexity well', body:[
+      'Frame questions as explicit, multi-part comparisons to trigger the deeper Pro Search behavior rather than a quick-mode answer — "compare X, Y, and Z across price, contract terms, and recent changes" reads very differently to the system than "tell me about X."',
+      'Add a recency requirement when it matters ("as of this quarter," "any changes in the last 6 months") since competitive and pricing information goes stale fast.',
+      'Treat the synthesized answer as a starting point, not a verified fact. Perplexity reads and cites sources — it does not fact-check them. Skim the actual citations before a claim goes into a deck or an email to a customer.'
+    ]}
+  ],
+  fieldNotes:[
+    {label:'Field note', text:'A cited answer is not the same as a verified answer. Open at least the top one or two sources before a number leaves your laptop.'}
+  ],
+  specimens:[
+    {label:'Specimen — multi-part comparison to trigger deeper research', body:'Compare the current pricing pages and contract terms of [Competitor A], [Competitor B], and [Competitor C] for their mid-market tier. Note any pricing or packaging changes in the last 6 months. Present as a table with columns: Vendor, Starting Price, Contract Minimum, Notable Recent Change, Source.', annot:'Multi-part, comparative, time-bounded, and asks explicitly for sources in the output — exactly the shape of question that benefits from deeper research rather than a quick answer.'},
+    {label:'Specimen — Space setup for ongoing competitive tracking', body:'Space: "Competitor Watch — Mid-Market SaaS"\nStanding instructions: always cite the original source (vendor site, press release, or filing) over secondary blogs or aggregator sites. Focus on companies with 50-500 employee target customers. Flag pricing changes specifically; ignore general marketing content.', annot:'Set once, this Space-level instruction shapes every future search inside it without being retyped.'}
+  ],
+  quiz:[
+    {q:'What is the core difference between Perplexity and a general-purpose chat tool for research questions?', options:['Perplexity is always cheaper','Perplexity grounds answers in live, citable web sources rather than relying on the model\'s training memory','Perplexity cannot answer any factual question','Perplexity only works for academic topics'], correct:1, explain:'The defining feature is real-time, sourced retrieval rather than recall — useful for anything current or that needs a citable source.'},
+    {q:'How do you reliably trigger Pro Search\'s deeper, multi-step behavior?', options:['Ask a single, simple factual question','Frame a multi-part, comparative question, ideally with a time/recency element', 'Use all capital letters','Ask the same question twice'], correct:1, explain:'Multi-part, comparative questions are the kind that benefit from — and tend to trigger — the deeper multi-step research process.'},
+    {q:'What is a Space, conceptually?', options:['A faster version of the model','A persistent project folder with standing instructions and reference files applied to every search inside it','A way to delete search history','A type of citation format'], correct:1, explain:'Spaces behave like the standing-instructions layer covered in Module 00, applied specifically to ongoing research projects.'},
+    {q:'Why should you open the actual citations before using a Perplexity answer in a customer-facing deck?', options:['Citations are decorative and rarely link anywhere real','Perplexity cites sources but does not independently fact-check them, so the underlying source could still be wrong or outdated','It is required by law','Citations always disagree with the synthesized answer'], correct:1, explain:'A cited answer means a source was found and referenced — not that the claim has been independently verified. Always check before it goes external.'},
+    {q:'Which scenario is the best fit for Perplexity specifically, versus the other three tools in this course?', options:['Turning meeting notes into a table inside the same Google Doc','Drafting a reply inside an existing email thread','Researching whether a competitor has changed pricing in the last quarter, with sources','Building a reusable triage assistant for incoming tickets'], correct:2, explain:'Current, citable, comparative research is exactly the use case Perplexity is purpose-built for.'}
+  ],
+  exercise:{
+    label:'Field exercise — frame a research question for depth',
+    scenario:'You have a QBR with a strategic account next week and want to walk in with a sharp competitive snapshot.',
+    task:'Write the Perplexity prompt you would use to research three named competitors\' current offerings.',
+    rubric:['Names specific entities to compare (not a vague "research my competitors")','Includes a recency requirement','Specifies the comparison dimensions (price, features, terms, etc.)','Asks explicitly for sources/citations in the output'],
+    modelAnswer:'Compare [Competitor A], [Competitor B], and [Competitor C]\'s current enterprise tier offerings as of this quarter. Compare on: starting price, key included features, contract minimums, and any product or pricing changes announced in the last 6 months. Output as a table with a Source column citing where each fact came from.'
+  }
+},
+{
+  id:5, color:'var(--capstone)', tabLabel:'CAPSTONE', fileNo:'05', clearance:'CERTIFICATION', readTime:'10 MIN + CERT',
+  kicker:'Module 05 — Capstone', title:'Choosing the right tool, fast, and proving what you know',
+  dek:'Bring it together: a decision framework you can use in the moment, a multi-tool workflow walkthrough, a final assessment, and your certificate of completion.',
+  lessons:[
+    {h:'The decision framework, all in one place', body:[
+      'You met each tool\'s strengths in its own module. Here is the recap you can actually use mid-task, when you have ten seconds to decide which tab to open.'
+    ], matrix:true},
+    {h:'A realistic multi-tool workflow: a renewal at risk', body:[
+      'A strategic account\'s renewal is in six weeks and usage has dropped 30% this quarter. Here is how the four tools chain together in a single real workflow, rather than competing for the same job.',
+      '<strong>Step 1 — Perplexity:</strong> quick competitive check — has anything changed with the competitor this account has been evaluating, with sources, in case it comes up on the call.',
+      '<strong>Step 2 — Claude:</strong> paste the full history of support tickets and call notes for the account, ask for a structured risk summary with severity tags — this is the long-document synthesis Claude is built for.',
+      '<strong>Step 3 — Gemini:</strong> draft the outreach email directly inside the existing Gmail thread with the account, referencing specifics from that thread.',
+      '<strong>Step 4 — ChatGPT:</strong> log the outcome into the team\'s "Renewal Risk Triage" Custom GPT so the pattern is captured in a consistent, searchable format for next time.',
+      'No single tool did all four steps best. The skill this whole program is building is recognizing which step is which job.'
+    ]}
+  ],
+  fieldNotes:[],
+  specimens:[],
+  quiz:[
+    {q:'In the renewal-risk workflow, why was Claude used for the support-ticket and call-note synthesis step specifically?', options:['It was the only tool available','That step is long-document synthesis into a structured summary — Claude\'s core strength', 'It is required by company policy','Claude is the cheapest option'], correct:1, explain:'The task — synthesizing a large volume of historical notes into a structured risk summary — maps directly to Claude\'s strength from Module 01.'},
+    {q:'Why was the outreach email drafted in Gemini rather than Claude or ChatGPT?', options:['Gemini is always better at writing emails','It needed to be drafted inside the existing Gmail thread, where Gemini has native context','Claude and ChatGPT cannot write emails','It was a random choice'], correct:1, explain:'The deciding factor was where the work was happening — inside an existing Gmail thread — which is Gemini\'s integration strength from Module 03.'},
+    {q:'What is the main risk of treating one AI tool as a one-stop shop for every PM/CSM task?', options:['There is no risk — one tool is always enough','Each tool has different strengths, so a single-tool habit leaves real capability (citations, integration, repeatability, long-context) unused','It is more expensive to use one tool','Using one tool is technically against most license terms'], correct:1, explain:'The whole premise of this program is matching the task to the tool\'s actual strength, not defaulting to whichever tool you opened first.'},
+    {q:'Which factor should most influence which tool you reach for first?', options:['Which tool has the flashiest new feature this month','Which surface the task is already happening in, and what kind of output it needs','Which tool is most expensive','Alphabetical order'], correct:1, explain:'This is the practical decision rule from Module 00, reinforced here: match the surface and output type to the tool\'s strength.'},
+    {q:'A Custom GPT was used to log the renewal-risk outcome. What does this step illustrate?', options:['ChatGPT is the most powerful of the four tools','A repeatable task (logging outcomes in a consistent format) is a good candidate for a saved, reusable assistant','Logging should always be the first step','Custom GPTs cannot be used for documentation'], correct:1, explain:'This is the Module 02 principle: anything you do repeatedly, in the same format, is worth building once as a Custom GPT rather than re-prompting from scratch each time.'},
+    {q:'What is the single biggest determinant of output quality across all four tools, according to this course?', options:['Which specific AI model version you have access to','How clearly the prompt specifies role, context, task, format, and constraints','How much you pay per month','How fast your internet connection is'], correct:1, explain:'This is the Module 00 thesis the whole course is built on: instruction literacy transfers across tools; tool choice is secondary.'},
+    {q:'Why should a Perplexity-sourced claim about a competitor still be checked before it goes into a customer-facing deck?', options:['Perplexity never provides real sources','Citations show a source was found, not that it was independently verified','It is illegal to cite Perplexity directly','Perplexity results expire after one hour'], correct:1, explain:'Module 04\'s key caution: a cited answer is a researched answer, not a fact-checked one. Always verify before it goes external.'},
+    {q:'What is the practical reason to keep "standing instructions" (Projects, Custom GPTs, Gems, Spaces) separate from one-off task prompts?', options:['It is required by the tools\' terms of service','It avoids re-explaining stable context every time, and keeps team-shared rules in one place instead of scattered across individual prompts','It makes responses load faster','It is only relevant for technical users'], correct:1, explain:'This is the Module 00 principle, repeated in every tool-specific module: separate what should always be true from what is specific to today\'s ask.'}
+  ],
+  exercise:{
+    label:'Final field exercise — pick the tool, write the prompt',
+    scenario:'A strategic account just submitted a feature request that, if true, sounds like it might already exist in a competitor\'s product. You have the account\'s usage history, an existing email thread with their champion, and you need to confirm whether the competitor actually shipped this.',
+    task:'Name which one of the four tools fits the verification step best, and write the prompt you would actually use for that step.',
+    rubric:['Names a specific tool and a one-sentence reason tied to that tool\'s strength','The prompt is multi-part / specific enough to get a sourced, comparative answer','Includes a recency requirement','Asks for citations in the output'],
+    modelAnswer:'Tool: Perplexity — this needs a current, citable answer about whether a competitor actually shipped a specific capability, not synthesis of internal notes.\nPrompt: "Has [Competitor] released [specific feature] in their product as of this quarter? If so, when, and what does their documentation or release notes say about it? Cite the original source."'
+  }
+}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let state = {
+  name:'',
+  certIssued:false,
+  certDate:null,
+  progress:{}
+};
+MODULES.forEach(m=>{ state.progress[m.id] = { quizScore:null, quizPassed:false, exerciseDone:false }; });
+
+let activeModule = 0;
+let quizSelections = {};   // {qIndex: optionIndex} for the module currently being viewed, pre-submit
+let quizGraded = {};       // {moduleId: bool} whether current view is showing graded state
+let aiFeedbackCache = {};  // {moduleId: html string or null}
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+async function loadState(){
+  try{
+    const r = await window.storage.get(STORAGE_KEY, false);
+    if(r && r.value){
+      const parsed = JSON.parse(r.value);
+      state = Object.assign(state, parsed);
+      MODULES.forEach(m=>{ if(!state.progress[m.id]) state.progress[m.id] = { quizScore:null, quizPassed:false, exerciseDone:false }; });
+    }
+  }catch(e){ /* no saved progress yet — fine, start fresh */ }
+  renderAll();
+}
+async function saveState(){
+  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+  catch(e){ console.error('Could not save progress', e); }
+}
+async function resetProgress(){
+  if(!confirm('Reset all progress, quiz scores, and your certificate? This cannot be undone.')) return;
+  try{ await window.storage.delete(STORAGE_KEY, false); }catch(e){}
+  state = { name:'', certIssued:false, certDate:null, progress:{} };
+  MODULES.forEach(m=>{ state.progress[m.id] = { quizScore:null, quizPassed:false, exerciseDone:false }; });
+  activeModule = 0;
+  renderAll();
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function isModuleComplete(id){
+  const p = state.progress[id];
+  if(!p) return false;
+  if(id===5) return p.quizPassed; // capstone has no separate exercise gate beyond its own exercise+quiz
+  return p.quizPassed && p.exerciseDone;
+}
+function prereqsForCapstoneMet(){ return [0,1,2,3,4].every(isModuleComplete); }
+function stampHTML(word, color, size){
+  return '<div class="stamp'+(size==='lg'?' lg':'')+'" style="--c:'+color+'"><div class="word">'+word+'</div></div>';
+}
+function escapeHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function genCredentialId(name){
+  const str = (name||'learner') + '-' + MODULES.map(m=>state.progress[m.id].quizScore||0).join('-');
+  let hash = 0;
+  for(let i=0;i<str.length;i++){ hash = ((hash<<5)-hash + str.charCodeAt(i))|0; }
+  const positive = Math.abs(hash).toString(36).toUpperCase().padStart(8,'0').slice(0,8);
+  return 'PMCSM-AI-' + positive;
+}
+
+/* =========================================================
+   RENDER: SIDEBAR
+   ========================================================= */
+function renderSidebar(){
+  const sb = document.getElementById('sidebar');
+  let html = '<div class="brand"><div class="mark">FIELD MANUAL · VOL. 1</div><h1>AI Tools for Program &amp; Customer Success Managers</h1></div>';
+  MODULES.forEach(m=>{
+    const complete = isModuleComplete(m.id);
+    const locked = (m.id===5 && !prereqsForCapstoneMet());
+    html += '<div class="nav-tab'+(activeModule===m.id?' active':'')+(locked?' locked':'')+'" style="--tab-color:'+m.color+'" data-nav="'+m.id+'" title="'+(locked?'Complete modules 00–04 first':'')+'">'
+      + '<span class="tabno">'+m.fileNo+'</span>'
+      + '<span class="tablabel">'+m.tabLabel+'</span>'
+      + '<span class="stampdot'+(complete?' filled':'')+'"></span>'
+      + '</div>';
+  });
+  const doneCount = MODULES.filter(m=>isModuleComplete(m.id)).length;
+  html += '<div class="sidebar-footer">'
+    + '<div class="progress-line">PROGRESS: '+doneCount+' / '+MODULES.length+' STAMPED</div>'
+    + '<div class="reset-link" id="reset-link">reset all progress</div>'
+    + '</div>';
+  sb.innerHTML = html;
+  sb.querySelectorAll('.nav-tab').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = parseInt(el.getAttribute('data-nav'),10);
+      if(el.classList.contains('locked')) return;
+      activeModule = id;
+      renderAll();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+  document.getElementById('reset-link').addEventListener('click', resetProgress);
+}
+
+/* =========================================================
+   RENDER: MAIN CONTENT
+   ========================================================= */
+function renderAll(){
+  renderSidebar();
+  const m = MODULES[activeModule];
+  document.getElementById('paper').style.setProperty('--mod-color', m.color);
+  renderModule(m);
+}
+
+function renderModule(m){
+  const p = state.progress[m.id];
+  let html = '';
+
+  html += '<div class="dossier-bar">'
+    + '<span>FILE NO. <b>'+m.fileNo+'</b></span>'
+    + '<span>CLEARANCE: <b>'+m.clearance+'</b></span>'
+    + '<span>EST. TIME: <b>'+m.readTime+'</b></span>'
+    + '<span>STATUS: <b>'+(isModuleComplete(m.id)?'COMPLETE':'IN PROGRESS')+'</b></span>'
+    + '</div>';
+
+  html += '<div class="kicker">'+m.kicker+'</div>';
+  html += '<h2 class="modtitle">'+m.title+'</h2>';
+  html += '<p class="dek">'+m.dek+'</p>';
+
+  html += '<div class="lesson">';
+  m.lessons.forEach(l=>{
+    html += '<h3 class="section-head">'+l.h+'</h3>';
+    l.body.forEach(para=>{ html += '<p>'+para+'</p>'; });
+    if(l.matrix){ html += renderDecisionMatrix(); }
+  });
+  html += '</div>';
+
+  m.fieldNotes.forEach(fn=>{
+    html += '<div class="fieldnote"><div class="fn-label">'+fn.label+'</div><p>'+fn.text+'</p></div>';
+  });
+
+  m.specimens.forEach(s=>{
+    html += '<div class="specimen"><div class="specimen-head">'+s.label+'</div><div class="specimen-body">'+escapeHtml(s.body)+'</div><div class="specimen-annot"><b>Why it works:</b> '+s.annot+'</div></div>';
+  });
+
+  if(m.quiz && m.quiz.length){
+    html += '<hr class="divider">';
+    html += '<h3 class="section-head">Verification — module quiz</h3>';
+    html += renderQuizBlock(m);
+  }
+
+  if(m.exercise){
+    html += '<hr class="divider">';
+    html += '<h3 class="section-head">Field exercise</h3>';
+    html += renderExerciseBlock(m);
+  }
+
+  if(m.id===5){
+    html += '<hr class="divider">';
+    html += '<h3 class="section-head">Certificate of completion</h3>';
+    html += renderCertificateBlock();
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+  attachModuleHandlers(m);
+}
+
+function renderDecisionMatrix(){
+  return '<table class="matrix"><thead><tr><th>Tool</th><th>Reach for it when…</th><th>Module</th></tr></thead><tbody>'
+    + '<tr><td><b>Claude</b></td><td>You have a long document or transcript and need a structured, editable deliverable</td><td>01</td></tr>'
+    + '<tr><td><b>ChatGPT</b></td><td>The task is repeatable enough to build a saved assistant for, or you\'re analyzing a data file</td><td>02</td></tr>'
+    + '<tr><td><b>Gemini</b></td><td>The work already lives in Gmail, Docs, Sheets, or Drive</td><td>03</td></tr>'
+    + '<tr><td><b>Perplexity</b></td><td>You need a current, citable answer for research or a comparison</td><td>04</td></tr>'
+    + '</tbody></table>';
+}
+
+/* ---------- QUIZ RENDER ---------- */
+function renderQuizBlock(m){
+  const p = state.progress[m.id];
+  const graded = !!quizGraded[m.id];
+  let html = '<div class="quiz">';
+  m.quiz.forEach((q,qi)=>{
+    const sel = quizSelections[m.id+'_'+qi];
+    html += '<div class="quiz-q'+(graded?' graded':'')+'" data-mod="'+m.id+'" data-qi="'+qi+'">';
+    html += '<div class="qtext"><span class="qnum">Q'+(qi+1)+'.</span>'+q.q+'</div>';
+    q.options.forEach((opt,oi)=>{
+      let cls = 'opt';
+      if(!graded && sel===oi) cls += ' selected';
+      if(graded){
+        if(oi===q.correct) cls += ' correct-answer';
+        else if(sel===oi) cls += ' wrong-answer';
+      }
+      html += '<div class="'+cls+'" data-action="'+(graded?'':'select-option')+'" data-mod="'+m.id+'" data-qi="'+qi+'" data-oi="'+oi+'"><span class="radio"></span><span>'+opt+'</span></div>';
+    });
+    if(graded){ html += '<div class="q-explain">'+q.explain+'</div>'; }
+    html += '</div>';
+  });
+
+  if(!graded){
+    html += '<button class="btn accent" data-action="submit-quiz" data-mod="'+m.id+'">Submit for review</button>';
+  } else {
+    const pct = Math.round((p.quizScore/m.quiz.length)*100);
+    const passed = p.quizPassed;
+    html += '<div class="quiz-result">'
+      + stampHTML(passed?'PASS':'REVIEW', passed?'var(--success)':'var(--danger)')
+      + '<div class="scoreline">SCORE<br><b>'+p.quizScore+' / '+m.quiz.length+' ('+pct+'%)</b><br>'+(passed?'Passing score reached (60%+).':'Below 60% — review the explanations above and retry when ready.')+'</div>'
+      + '</div>';
+    html += '<button class="btn secondary" style="margin-top:14px" data-action="retry-quiz" data-mod="'+m.id+'">Retry quiz</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+/* ---------- EXERCISE RENDER ---------- */
+function renderExerciseBlock(m){
+  const ex = m.exercise;
+  const p = state.progress[m.id];
+  let html = '<div class="exercise-box">';
+  html += '<div class="ex-label">'+ex.label+'</div>';
+  html += '<p class="scenario"><b>Scenario:</b> '+ex.scenario+'</p>';
+  html += '<p class="scenario"><b>Your task:</b> '+ex.task+'</p>';
+  html += '<textarea id="ex-textarea-'+m.id+'" placeholder="Write your prompt here...">'+(window.__exDraft && window.__exDraft[m.id] ? escapeHtml(window.__exDraft[m.id]) : '')+'</textarea>';
+  html += '<div class="rubric"><div class="r-label">Self-check rubric</div>';
+  ex.rubric.forEach((r,ri)=>{
+    html += '<label class="rubric-item"><input type="checkbox" data-action="rubric-check" data-mod="'+m.id+'" data-ri="'+ri+'">'+r+'</label>';
+  });
+  html += '</div>';
+  html += '<div class="btnrow">'
+    + '<button class="btn accent" data-action="get-ai-feedback" data-mod="'+m.id+'">Get AI feedback on my prompt</button>'
+    + '<button class="btn'+(p.exerciseDone?' secondary':'')+'" data-action="mark-exercise-done" data-mod="'+m.id+'">'+(p.exerciseDone?'✓ Marked complete':'Mark exercise complete')+'</button>'
+    + '<span class="reveal-toggle" data-action="reveal-model" data-mod="'+m.id+'">Reveal a reference answer</span>'
+    + '</div>';
+  html += '<div id="ai-feedback-'+m.id+'"></div>';
+  html += '<div id="model-answer-'+m.id+'"></div>';
+  html += '</div>';
+  return html;
+}
+
+/* ---------- CERTIFICATE RENDER ---------- */
+function renderCertificateBlock(){
+  if(!prereqsForCapstoneMet()){
+    const missing = [0,1,2,3,4].filter(id=>!isModuleComplete(id)).map(id=>MODULES[id].tabLabel);
+    return '<div class="lockbox"><b>Certificate locked.</b> Finish these modules first (pass the quiz at 60%+ and mark the field exercise complete):<ul>'
+      + missing.map(x=>'<li>'+x+'</li>').join('')
+      + '</ul></div>';
+  }
+  if(!state.progress[5].quizPassed){
+    return '<div class="lockbox"><b>Almost there.</b> Pass the capstone quiz above (60%+) to unlock your certificate.</div>';
+  }
+  if(!state.certIssued){
+    state.certIssued = true;
+    state.certDate = new Date().toISOString().slice(0,10);
+    saveState();
+  }
+  const credId = genCredentialId(state.name);
+  const totalQ = MODULES.reduce((s,m)=>s+m.quiz.length,0);
+  const totalCorrect = MODULES.reduce((s,m)=>s+(state.progress[m.id].quizScore||0),0);
+  const overallPct = Math.round((totalCorrect/totalQ)*100);
+
+  let html = '<div class="cert-wrap">';
+  html += '<div class="name-input-row"><input type="text" id="cert-name-input" placeholder="Type your full name as it should appear" value="'+escapeHtml(state.name)+'"><button class="btn" data-action="save-name">Set name</button></div>';
+  html += '<div id="cert-card">'
+    + '<div class="cert-eyebrow">Certificate of Completion</div>'
+    + '<h2>AI Tools for Program &amp; Customer Success Managers</h2>'
+    + '<div class="cert-name">'+(state.name? escapeHtml(state.name) : 'Your Name Here')+'</div>'
+    + '<div class="cert-sub">has completed all five training modules — Claude, ChatGPT, Gemini, and Perplexity — plus the capstone assessment, with an overall score of '+overallPct+'%, demonstrating practical prompt-writing skill for program management and customer success workflows.</div>'
+    + '<div class="cert-modules">'+MODULES.map(m=>m.tabLabel+' — '+(state.progress[m.id].quizScore!==null? Math.round((state.progress[m.id].quizScore/m.quiz.length)*100)+'%':'—')).join('  ·  ')+'</div>'
+    + '<div class="sealrow">'+stampHTML('CERTIFIED','var(--gold)','lg')+'</div>'
+    + '<div class="credid">CREDENTIAL ID '+credId+'  ·  ISSUED '+state.certDate+'</div>'
+    + '</div>';
+  html += '<div class="btnrow">'
+    + '<button class="btn accent" data-action="download-cert">Download as image</button>'
+    + '<button class="btn secondary" data-action="copy-linkedin">Copy text for LinkedIn</button>'
+    + '</div>';
+  html += '<p class="disclaimer">This is a self-paced completion record generated by this training app based on your quiz scores and self-attested practical exercises — not an accredited third-party certification. It\'s well suited for a LinkedIn "Featured" post, your resume\'s projects section, or as a talking point in an interview about how you\'ve built AI fluency. If your target role specifically requires an accredited credential, treat this as evidence of practice alongside that, not a replacement for it.</p>';
+  html += '</div>';
+  return html;
+}
+
+/* =========================================================
+   EVENT HANDLERS
+   ========================================================= */
+function attachModuleHandlers(m){
+  const root = document.getElementById('main-content');
+
+  root.querySelectorAll('[data-action="select-option"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const mod = el.getAttribute('data-mod'), qi = el.getAttribute('data-qi'), oi = parseInt(el.getAttribute('data-oi'),10);
+      quizSelections[mod+'_'+qi] = oi;
+      renderModule(m);
+    });
+  });
+
+  const submitBtn = root.querySelector('[data-action="submit-quiz"]');
+  if(submitBtn){
+    submitBtn.addEventListener('click', ()=>{
+      let correct = 0;
+      m.quiz.forEach((q,qi)=>{ if(quizSelections[m.id+'_'+qi]===q.correct) correct++; });
+      state.progress[m.id].quizScore = correct;
+      state.progress[m.id].quizPassed = (correct/m.quiz.length) >= 0.6;
+      quizGraded[m.id] = true;
+      saveState();
+      renderAll();
+    });
+  }
+  const retryBtn = root.querySelector('[data-action="retry-quiz"]');
+  if(retryBtn){
+    retryBtn.addEventListener('click', ()=>{
+      quizGraded[m.id] = false;
+      m.quiz.forEach((q,qi)=>{ delete quizSelections[m.id+'_'+qi]; });
+      renderModule(m);
+    });
+  }
+
+  const exTextarea = root.querySelector('#ex-textarea-'+m.id);
+  if(exTextarea){
+    exTextarea.addEventListener('input', ()=>{
+      window.__exDraft = window.__exDraft || {};
+      window.__exDraft[m.id] = exTextarea.value;
+    });
+  }
+
+  root.querySelectorAll('[data-action="mark-exercise-done"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.progress[m.id].exerciseDone = true;
+      saveState();
+      renderAll();
+    });
+  });
+
+  root.querySelectorAll('[data-action="reveal-model"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const target = document.getElementById('model-answer-'+m.id);
+      target.innerHTML = '<div class="model-answer">'+escapeHtml(m.exercise.modelAnswer)+'</div>';
+    });
+  });
+
+  root.querySelectorAll('[data-action="get-ai-feedback"]').forEach(el=>{
+    el.addEventListener('click', async ()=>{
+      const ta = document.getElementById('ex-textarea-'+m.id);
+      const userPrompt = ta ? ta.value.trim() : '';
+      const target = document.getElementById('ai-feedback-'+m.id);
+      if(!userPrompt){
+        target.innerHTML = '<div class="ai-feedback"><h4>Feedback</h4><div>Write your prompt in the box above first.</div></div>';
+        return;
+      }
+      target.innerHTML = '<div class="ai-feedback"><h4>Feedback</h4><div class="loading">Reviewing your prompt against the rubric…</div></div>';
+      try{
+        const feedback = await getAIFeedback(m.exercise, userPrompt);
+        target.innerHTML = renderAIFeedback(feedback);
+      }catch(e){
+        target.innerHTML = '<div class="ai-feedback"><h4>Feedback</h4><div>Could not reach the AI grader right now. Use the self-check rubric above, or try again in a moment.</div></div>';
+      }
+    });
+  });
+
+  const nameSaveBtn = root.querySelector('[data-action="save-name"]');
+  if(nameSaveBtn){
+    nameSaveBtn.addEventListener('click', ()=>{
+      const input = document.getElementById('cert-name-input');
+      state.name = input.value.trim();
+      saveState();
+      renderAll();
+    });
+  }
+  const dlBtn = root.querySelector('[data-action="download-cert"]');
+  if(dlBtn){
+    dlBtn.addEventListener('click', ()=>{
+      const certEl = document.getElementById('cert-card');
+      if(typeof html2canvas === 'undefined'){
+        alert('Image export script did not load — try taking a screenshot of the certificate instead.');
+        return;
+      }
+      html2canvas(certEl, {backgroundColor:'#FEFCF6', scale:2}).then(canvas=>{
+        const link = document.createElement('a');
+        link.download = 'ai-toolkit-certificate.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(()=>{ alert('Could not export the image — try a screenshot instead.'); });
+    });
+  }
+  const copyBtn = root.querySelector('[data-action="copy-linkedin"]');
+  if(copyBtn){
+    copyBtn.addEventListener('click', ()=>{
+      const credId = genCredentialId(state.name);
+      const text = 'AI Tools for Program & Customer Success Managers\n'
+        + 'Self-paced training covering practical prompt engineering across Claude, ChatGPT, Gemini, and Perplexity for program management and customer success workflows.\n'
+        + 'Completion ID: '+credId+'\n'
+        + 'Skills: Prompt Engineering, AI Tools, Claude, ChatGPT, Gemini, Perplexity AI, Program Management, Customer Success';
+      navigator.clipboard.writeText(text).then(()=>{
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=>{ copyBtn.textContent = 'Copy text for LinkedIn'; },1800);
+      }).catch(()=>{ alert(text); });
+    });
+  }
+}
+
+function renderAIFeedback(fb){
+  let html = '<div class="ai-feedback"><h4>AI feedback</h4>';
+  html += '<div><b>Score: '+fb.score+'/5</b> — '+(fb.pass? 'meets the bar.' : 'room to sharpen.')+'</div>';
+  if(fb.strengths && fb.strengths.length){
+    html += '<div style="margin-top:8px;"><b>Working well:</b><ul>'+fb.strengths.map(s=>'<li>'+escapeHtml(s)+'</li>').join('')+'</ul></div>';
+  }
+  if(fb.improvements && fb.improvements.length){
+    html += '<div><b>Tighten this:</b><ul>'+fb.improvements.map(s=>'<li>'+escapeHtml(s)+'</li>').join('')+'</ul></div>';
+  }
+  if(fb.rewrite_suggestion){
+    html += '<div style="margin-top:8px;"><b>One way to rewrite it:</b><div class="model-answer">'+escapeHtml(fb.rewrite_suggestion)+'</div></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+async function getAIFeedback(exercise, userPrompt){
+  const sys = 'You are a prompt-engineering coach reviewing a practice exercise for a training program aimed at program managers and customer success managers learning to use AI tools. '
+    + 'Scenario given to the learner: '+exercise.scenario+' '
+    + 'Task given to the learner: '+exercise.task+' '
+    + 'Rubric the learner was asked to self-check against: '+exercise.rubric.join(' | ')+' '
+    + 'The learner submitted this prompt: """'+userPrompt+'""" '
+    + 'Evaluate it against the rubric. Respond with ONLY valid JSON, no markdown fences, no preamble, in exactly this shape: '
+    + '{"score": <integer 1-5>, "pass": <true if score>=3>, "strengths": [<1-3 short strings>], "improvements": [<1-3 short, specific, actionable strings>], "rewrite_suggestion": <a short improved version of their prompt as one string>}';
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:1000,
+      messages:[{ role:'user', content: sys }]
+    })
+  });
+  const data = await response.json();
+  const textBlocks = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const cleaned = textBlocks.replace(/```json|```/g,'').trim();
+  const parsed = JSON.parse(cleaned);
+  return parsed;
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+loadState();
+</script>
+</body>
+</html>
